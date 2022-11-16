@@ -1,5 +1,6 @@
 @extends('layout')
 @section('here')
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <div class="page-header">
     <h4 class="page-title">{{ Auth::user()->name }}, xoş gəlmisiniz</h4>
 </div>
@@ -9,6 +10,11 @@
 		<div class="card">
 			<div class="card-header">
 				<div class="card-title">
+                    <div class="date-filter">
+                        <input id="date-1" type="date" value="2022-01-01"/><br>
+                        <input id="date-2" type="date" value="2022-12-01"/>
+                    </div>
+                    <button class="btn btn-primary filter-by-date"><i class="fa fa-filter"></i></button>
 				</div>
 			</div>
 			<div class="card-body">
@@ -18,7 +24,10 @@
 						<a class="card text-center" href="/admin/company_messages?search=search?&send_status_id=1">
 							<div class="card-body">
 								<h6 class="mb-3">Göndərilib</h6>
-								<h2 class="mb-2 text-white display-4 font-weight-bold"><i class="mdi mdi-wunderlist text-success mr-2"></i>{{ $statics['messages_statistics']['sent'] }}</h2>
+								<h2 class="mb-2 text-white display-4 font-weight-bold sent-messages">
+                                    <i class="mdi mdi-wunderlist text-success mr-2"></i>
+                                    {{ $statics['messages_statistics']['sent'] }}
+                                </h2>
 							</div>
 						</a>
 					</div>
@@ -54,7 +63,20 @@
 							</div>
 						</a>
 					</div>
-				</div>	
+                    <div class="col-sm-6 col-lg-6 col-xl-3">
+                        <a class="card text-center">
+                            <div class="card-body">
+                                <h6 class="mb-3">Cəmi</h6>
+                                <h2 class="mb-2 text-white display-4 font-weight-bold"><i class="mdi mdi-database text-primary mr-2"></i>{{
+                                 $statics['messages_statistics']['sent']+
+                                 $statics['messages_statistics']['unsent']+
+                                 $statics['messages_statistics']['invalid']+
+                                 $statics['messages_statistics']['expired']+
+                                $statics['messages_statistics']['queue'] }}</h2>
+                            </div>
+                        </a>
+                    </div>
+				</div>
 				@else
 				<h4 class="page-title">Hörmətli {{ Auth::user()->name }}, sizin hələ tokeniniz yoxdur!</h4>
 				@endif
@@ -64,6 +86,25 @@
 		<!-- SECTION WRAPPER -->
 	</div>
 </div>
+<script>
+    $('.filter-by-date').click(function (  ){
+        let from=$('#date-1').val().trim();
+        let to=$('#date-2').val().trim();
+
+        $.ajax({
+            type:"GET",
+            url:"/admin/date-filter",
+            data:{
+                "from":from,
+                "to":to,
+                "c_id":{{auth()->user()->c_id}}
+            },
+            success:function ( res ){
+                $('.sent-messages').html(`<i class="mdi mdi-wunderlist text-success mr-2"></i>${res}`)
+            }
+        })
+    })
+</script>
 
 @endsection
 @section('script')

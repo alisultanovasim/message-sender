@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Log;
 use Hash;
+use Symfony\Component\HttpFoundation\Response;
 use Validator;
 
 use App\Companies;
@@ -22,7 +24,7 @@ class AcceptApiController extends Controller
             'message' => ['required','min:3'],
         ]);
         if($filter->fails()){
-            
+
             $messages = $filter->messages();
             return response()->json(["errors" => $messages], 422);
         }
@@ -59,11 +61,11 @@ class AcceptApiController extends Controller
             'message_id' => ['required'],
         ]);
         if($filter->fails()){
-            
+
             $messages = $filter->messages();
             return response()->json(["errors" => $messages], 422);
         }
-        
+
         Log::notice('Check message'.json_encode($request->all()));
         $company=Companies::where('c_email',$request['login'])->first();
         if($company)
@@ -94,4 +96,67 @@ class AcceptApiController extends Controller
         }
         return 'ok';
     }
+
+    public function getStatistics(Request $request)
+    {
+        $company=Companies::where('c_email',$request['login'])->first();
+        if($company)
+        {
+            if(!Hash::check($request['password'],$company->c_password))
+            {
+                return response()->json(['status'=>'error','message'=>'The password is wrong'],422);
+            }
+            Log::notice('Send message'.json_encode($request->all()));
+            $sentCount=Messages::query()
+                ->where([
+                    'c_id'=>$company->id,
+                    'send_status_id'=>1
+                ])
+                ->count();
+            $rejectCount=Messages::query()
+                ->where([
+                    'c_id'=>$company->id,
+                    'send_status_id'=>3
+                ])
+                ->count();
+            $unluckyCount=Messages::query()
+                ->where([
+                    'c_id'=>$company->id,
+                    'send_status_id'=>2
+                ])
+                ->count();
+            return response()->json(['data'=>['sentCount'=>$sentCount,
+                'rejectedCount'=>$rejectCount,
+                'unluckyCount'=>$unluckyCount]],Response::HTTP_OK);
+        }else
+        {
+            return response()->json(['status'=>'error','message'=>"The company doesn't find"],422);
+        }
+    }
+
+    public function dateFilter(Request $request)
+    {
+        $company=Companies::where('c_email',$request['login'])->first();
+        if($company)
+        {
+            if(!Hash::check($request['password'],$company->c_password))
+            {
+                return response()->json(['status'=>'error','message'=>'The password is wrong'],422);
+            }
+            Log::notice('Send message'.json_encode($request->all()));
+            $count=Messages::query()
+                ->where([
+                    'c_id'=>$company->id,
+                    'send_status_id'=>Messages::STATUS_SEND
+                ])
+                ->whereDate('message_sent_at','>=',$request->from)
+                ->whereDate('message_sent_at','<=',$request->to)
+                ->count();
+            return response(['count'=>$count],Response::HTTP_OK);
+        }else
+        {
+            return response()->json(['status'=>'error','message'=>"The company doesn't find"],422);
+        }
+    }
+
 }

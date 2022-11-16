@@ -38,12 +38,14 @@
 		<!-- SELECT2 CSS -->
 		<link href="{{ asset('admin/assets/plugins/select2/select2.min.css') }}" rel="stylesheet"/>
 		<link href="{{ asset('admin/assets/plugins/accordion/accordion.css') }}" rel="stylesheet" />
-		
+
 		<link rel="stylesheet" href="{{ asset('admin/assets/plugins/summernote/summernote-bs4.css') }}">
-		
+
 		<link href="{{ asset('admin/assets/plugins/datatable/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
 		<link rel="stylesheet" href="{{ asset('admin/assets/plugins/datatable/css/buttons.bootstrap4.min.css') }}">
 		<link href="{{ asset('admin/assets/plugins/datatable/responsive.bootstrap4.min.css') }}" rel="stylesheet" />
+
+
 
 		<!-- Skin css-->
 		<link href="{{ asset('admin/assets/skins/skins-modes/color1.css') }}"  id="theme" rel="stylesheet" type="text/css" media="all" />
@@ -121,7 +123,7 @@
         {
             float:right !important;
         }
-        
+
     </style>
 	<body class="default-header dark-mode">
 
@@ -169,7 +171,7 @@
 										<a class="dropdown-item" href="/admin/logout"><i class="mdi  mdi-logout-variant mr-2"></i> <span>Çıxış</span></a>
 									</div>
 								</div><!-- SIDE-MENU -->
-								
+
 							</div>
 						</div>
 					</div>
@@ -185,6 +187,7 @@
 								    <li aria-haspopup="true"><a href="/admin/company/whatsapp/profile" class="sub-icon "><i class="fe fe-check"></i> Status</a></li>
 									<li aria-haspopup="true"><a href="/admin/home" class="sub-icon "><i class="fe fe-airplay"></i> Statistika</a></li>
 									<li aria-haspopup="true"><a href="/admin/company_add_messages" class="sub-icon "><i class="fa fa-plus"></i> Yarat</a></li>
+									<li aria-haspopup="true"><a href="/admin/template" class="sub-icon "><i class="fa fa-paste"></i> Şablonlar</a></li>
 									<li aria-haspopup="true"><a href="/admin/company_messages" class="sub-icon "><i class="fa fa-envelope"></i> Hesabat</a></li>
 									<li aria-haspopup="true"><a href="#" class="sub-icon"><i class="fa fa-comments"></i> Çat Bot <i class="fa fa-angle-down horizontal-icon"></i></a>
 										<ul class="sub-menu">
@@ -192,7 +195,7 @@
 											<li aria-haspopup="true"><a href="/admin/chatbot">Əlavə et</a></li>
 										</ul>
 									</li>
-									<li aria-haspopup="true"><a href="#" class="sub-icon "><i class="fa fa-file"></i>API Dokumentasiya</a></li>
+									<li aria-haspopup="true"><a href="#" class="sub-icon "><i class="fa fa-file"></i>API Doc</a></li>
 									<li aria-haspopup="true"><a href="/admin/company/edit" class="sub-icon "><i class="fa fa-cog"></i> Tənzimləmələr</a></li>
 								</ul>
 							</nav>
@@ -206,13 +209,13 @@
 				<div class="container content-area relative">
 
 				  @yield('here')
-				  
+
 				</div>
 				<!-- CONTAINER END -->
             </div>
 
 			<!-- SIDE-BAR -->
-			
+
 			<!-- SIDE-BAR CLOSED -->
 
 			<!-- FOOTER -->
@@ -220,7 +223,7 @@
 				<div class="container">
 					<div class="row align-items-center flex-row-reverse">
 						<div class="col-md-12 col-sm-12 text-center">
-							Bigonder.az © 2022 
+							Bigonder.az © 2022
 						</div>
 					</div>
 				</div>
@@ -276,7 +279,8 @@
 
 		<!-- CUSTOM JS -->
 		<script src="{{ asset('admin/assets/js/custom.js') }}"></script>
-		
+
+
 		<script src="{{ asset('admin/assets/plugins/datatable/js/jquery.dataTables.js') }}"></script>
 		<script src="{{ asset('admin/assets/plugins/datatable/js/dataTables.bootstrap4.js') }}"></script>
 		<script src="{{ asset('admin/assets/plugins/datatable/js/dataTables.buttons.min.js') }}"></script>
@@ -308,14 +312,14 @@
                     {
                        if(response.status=='success')
                        {
-                          
+
                           createPagination(response.count,page);
                        }
                      }
-                }) 
+                })
             }
             let totalPages = totalPage();
-            
+
             let searchParams = new URLSearchParams(window.location.search)
             searchParams.has('search') // true
             let param = searchParams.get('search')
@@ -339,20 +343,20 @@
                     liTag += `<li class="btn prev" onclick="createPagination(totalPages, ${page - 1})"><a href="`+currentUrl+`?page=${page - 1}"><span><i class="fa fa-angle-left"></i> Prev</span></a></li>`;
                 }
               }
-            
+
               if(page > 2){ //if page value is less than 2 then add 1 after the previous button
                 if(param)
                 {
                     liTag += `<li class="first numb" onclick="createPagination(totalPages, 1)"><a href="`+currentUrl+`&page=1"><span>1</span></a></li>`;
                 }else
                 {
-                    liTag += `<li class="first numb" onclick="createPagination(totalPages, 1)"><a href="`+currentUrl+`?page=1"><span>1</span></a></li>`;  
+                    liTag += `<li class="first numb" onclick="createPagination(totalPages, 1)"><a href="`+currentUrl+`?page=1"><span>1</span></a></li>`;
                 }
                 if(page > 3){ //if page value is greater than 3 then add this (...) after the first li or page
                   liTag += `<li class="dots"><span>...</span></li>`;
                 }
               }
-            
+
               // how many pages or li show before the current li
               if (page == totalPages) {
                 if(beforePage>2)
@@ -368,7 +372,7 @@
               } else if (page == 2) {
                 afterPage  = afterPage + 1;
               }
-            
+
               for (var plength = beforePage; plength <= afterPage; plength++) {
                 if (plength > totalPages) { //if plength is greater than totalPage length then continue
                   continue;
@@ -386,10 +390,10 @@
                     liTag += `<li class="numb ${active}" onclick="createPagination(totalPages, ${plength})"><a href="`+currentUrl+`&page=${plength}"><span>${plength}</span></a></li>`;
                 }else
                 {
-                    liTag += `<li class="numb ${active}" onclick="createPagination(totalPages, ${plength})"><a href="`+currentUrl+`?page=${plength}"><span>${plength}</span></a></li>`;   
+                    liTag += `<li class="numb ${active}" onclick="createPagination(totalPages, ${plength})"><a href="`+currentUrl+`?page=${plength}"><span>${plength}</span></a></li>`;
                 }
               }
-            
+
               if(page < totalPages - 1){ //if page value is less than totalPage value by -1 then show the last li or page
                 if(page < totalPages - 2){ //if page value is less than totalPage value by -2 then add this (...) before the last li or page
                   liTag += `<li class="dots"><span>...</span></li>`;
@@ -402,22 +406,22 @@
                     liTag += `<li class="last numb" onclick="createPagination(totalPages, ${totalPages})"><a href="`+currentUrl+`?page=${totalPages}"><span>${totalPages}</span></a></li>`;
                 }
               }
-            
+
               if (page < totalPages) { //show the next button if the page value is less than totalPage(20)
                 if(param)
                 {
-                    liTag += `<li class="btn next" onclick="createPagination(totalPages, ${page + 1})"><a href="`+currentUrl+`&page=${page + 1}"><span>Next <i class="fa fa-angle-right"></i></span></a></li>`;   
+                    liTag += `<li class="btn next" onclick="createPagination(totalPages, ${page + 1})"><a href="`+currentUrl+`&page=${page + 1}"><span>Next <i class="fa fa-angle-right"></i></span></a></li>`;
                 }else
                 {
                     liTag += `<li class="btn next" onclick="createPagination(totalPages, ${page + 1})"><a href="`+currentUrl+`?page=${page + 1}"><span>Next <i class="fa fa-angle-right"></i></span></a></li>`;
                 }
-                
+
               }
               element.innerHTML = liTag; //add li tag inside ul tag
               return liTag; //reurn the li tag
             }
-            
-            
+
+
 		</script>
         @yield('script')
 	</body>

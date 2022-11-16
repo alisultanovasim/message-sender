@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Template;
 use Illuminate\Http\Request;
 use App\Messages;
 use App\ChatType;
@@ -16,6 +17,7 @@ use App\CommandMessages;
 
 use Auth;
 use Cache;
+use Symfony\Component\HttpFoundation\Response;
 
 class MessagesController extends Controller
 {
@@ -32,13 +34,74 @@ class MessagesController extends Controller
             $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
             if($message)
             {
-                return response()->json(['status'=>'success','message'=>'The query of message sent']);
+                return response()->json(['status'=>'success','message'=>'The query of message sent'],Response::HTTP_OK);
+            }
+            if ($request['telephone']<10 || $request['telephone']>12){
+                return response()->json(['status'=>'error','message'=>'Nömrəni düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
             }
         }else
         {
-            return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil']);
+            return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil'],Response::HTTP_BAD_REQUEST);
         }
     }
+
+    public function sendCollectionMessage(Request $request)
+    {
+        $numArr=explode(',',$request->telephone);
+        $company_id=Auth::user()->c_id;
+        foreach ($numArr as $value){
+            if ($value<10 || $value>12){
+                return response()->json(['status'=>'error','message'=>'Nömrələri düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
+            }
+            if($company_id)
+            {
+                $message=new Messages();
+                $message=$message->sendMessage($company_id,$value,$request['message'],2);
+                if($message)
+                {
+                    return response()->json(['status'=>'success','message'=>'The query of message sent']);
+                }
+                else{
+                    return response()->json(['status'=>'error','message'=>'Mesaj bölməsi boş qala bilməz.'],Response::HTTP_BAD_REQUEST);
+                }
+            }else
+            {
+                return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil']);
+            }
+        }
+    }
+
+    public function allTemplates()
+    {
+        $templates=Template::query()
+            ->where('c_id',Auth::user()->c_id)
+            ->get(['id','title','text']);
+
+        return view('messages.template',compact('templates'));
+    }
+
+    public function addNewTemplate(Request $request)
+    {
+        $this->validate($request,[
+           'title'=>['string','required','min:2'],
+           'text'=>['string','required','min:3'],
+        ]);
+        $template=new Template();
+        $template->title=$request->title;
+        $template->text=$request->text;
+        $template->c_id=Auth::user()->c_id;
+        $template->save();
+
+        return \response()->json(['data'=>$template,'status'=>'success'],Response::HTTP_CREATED);
+    }
+
+    public function deleteTemplate($id)
+    {
+        $template=Template::query()->findOrFail($id);
+        $template->delete();
+        return redirect()->back();
+    }
+
     public function messages(Request $request)
     {
         $company=Auth::user();
@@ -88,7 +151,7 @@ class MessagesController extends Controller
         {
             $array=$messages->get();
             $filename = "messages.csv";
-            
+
           $headers = array(
             "Content-Encoding"    => "UTF-8",
             "Content-type"        => "text/csv; charset=UTF-8",
@@ -167,7 +230,7 @@ class MessagesController extends Controller
     public function downloadExcel($array)
     {
         $filename = "messages.csv";
-            
+
         $headers = array(
             "Content-Encoding"    => "UTF-8",
             "Content-type"        => "text/csv; charset=UTF-8",
@@ -199,6 +262,19 @@ class MessagesController extends Controller
             return response()->stream($callback, 200, $headers);
             exit();
     }
-    
-    
+
+    public function dateFilter(Request $request)
+    {
+        $messages=Messages::query()
+            ->where([
+                'c_id'=>$request->c_id,
+                'send_status_id'=>Messages::STATUS_SEND
+            ])
+            ->datefilter($request->from,$request->to);
+        return response($messages,Response::HTTP_OK);
+    }
+
+
+
+
 }

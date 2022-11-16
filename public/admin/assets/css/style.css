@@ -56,7 +56,7 @@
 	* selectize
 	* Gallery
 	* Feather icons
-	
+
 */
 /*-------- Bootstrap Framework -------*/
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap");
@@ -33039,5 +33039,35 @@ div.online-status .status.online {
     width: 100%;
     margin: 0;
 }
-
 /*# sourceMappingURL=style.css.map */
+
+/*Date filter inputs*/
+.date-filter{
+    display: inline-block;
+}
+.filter-by-date{
+    margin-top: -25px;
+}
+::-webkit-inner-spin-button {
+    display:none;
+}
+::-webkit-calendar-picker-indicator { background-color:white}
+input[type=date]{
+    font-size:17px;
+}
+::-webkit-datetime-edit-text { color: #ffffff
+}
+::-webkit-datetime-edit-month-field { color: #ffffff
+}
+::-webkit-datetime-edit-day-field { color: #ffffff; }
+::-webkit-datetime-edit-year-field { color: #ffffff; }
+::-webkit-calendar-picker-indicator{
+    background-image: url(http://icons.iconarchive.com/icons/dakirby309/simply-styled/256/Calendar-icon.png);
+    background-position:center;
+    background-size:20px 20px;
+    background-repeat:no-repeat;
+    color:rgba(204,204,204,0);
+}
+
+
+

@@ -18,7 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::post('/admin/sendmessage', 'AcceptApiController@sendMessage');
+Route::group(['prefix'=>'admin'],function (){
+    Route::post('/sendmessage', 'AcceptApiController@sendMessage');
+    Route::get('/get-all-statistics', 'AcceptApiController@getStatistics');
 // Route::post('/admin/sendmessage/link', 'AcceptApiController@sendMessageLink');
-Route::post('/admin/checkmessage', 'AcceptApiController@checkMessage');
+    Route::get('/check-message', 'AcceptApiController@checkMessage');
+    Route::get('/date-filter', 'AcceptApiController@dateFilter');
+});
+
+

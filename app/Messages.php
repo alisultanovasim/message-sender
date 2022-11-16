@@ -9,7 +9,9 @@ use App\Logs;
 class Messages extends Model
 {
     protected $table="messages";
-    
+    const STATUS_SEND=1;
+    const STATUS_REJECT=2;
+
     public function company()
     {
          return $this->hasOne(Companies::class, 'id', 'c_id');
@@ -34,7 +36,7 @@ class Messages extends Model
     {
          return $this->hasOne(Environment::class, 'id', 'priority_id');
     }
-    // send sms 
+    // send sms
     public function sendMessage($c_id,$phone_number,$text,$type)
     {
         $company=Companies::where('id',$c_id)->first();
@@ -56,10 +58,10 @@ class Messages extends Model
                 "content-type: application/x-www-form-urlencoded"
               ),
             ));
-            
+
             $response = curl_exec($curl);
             $err = curl_error($curl);
-            
+
             curl_close($curl);
             Log::info('Company request-'.$response);
             Logs::insert([
@@ -67,13 +69,13 @@ class Messages extends Model
                      'log_type'=>$type==1 ? 'Send_message' : 'Send_message_system',
                      'log_text'=>'To send_number:'.$phone_number.', from whatsap_number:'.$company->c_whatsapp_number.', message: '.$text.',Company: '. $company->id.', accept request-'.$response,
                      'ip'=>getServerIp(),
-                     
+
                 ]);
             $response=json_decode($response,true);
             $messageid=0;
             if(!empty($response['message']) && $response['message']=='ok')
             {
-                
+
                 $messageid=Messages::insertGetId([
                     'c_id'=>$company->id,
                     'from_message'=>$company->c_whatsapp_number,
@@ -89,9 +91,9 @@ class Messages extends Model
                     'whatsapp_message_id'=>$response['id'],
                     'message_type'=>$type
                     ]);
-                
+
             }
-            
+
             return $messageid;
             if ($err) {
               echo "cURL Error #:" . $err;
@@ -100,9 +102,9 @@ class Messages extends Model
             }
         }
     }
-    
-    
-    
+
+
+
     // get statics
     public function getSendStatics($c_id)
     {
@@ -110,7 +112,7 @@ class Messages extends Model
         if($company)
         {
             $curl = curl_init();
-    
+
             curl_setopt_array($curl, array(
               CURLOPT_URL => "https://api.ultramsg.com/".$company->c_instance_id."/messages/statistics?token=".$company->c_token,
               CURLOPT_RETURNTRANSFER => true,
@@ -125,17 +127,17 @@ class Messages extends Model
                 "content-type: application/x-www-form-urlencoded"
               ),
             ));
-            
+
             $response = curl_exec($curl);
             $err = curl_error($curl);
-            
+
             curl_close($curl);
-            
+
             return json_decode($response,true);
         }
         return false;
     }
-    
+
     //check whatsapp number
     public function checkWhatsappNumber($c_id)
     {
@@ -143,7 +145,7 @@ class Messages extends Model
         if($company)
         {
             $curl = curl_init();
-    
+
             curl_setopt_array($curl, array(
               CURLOPT_URL => "https://api.ultramsg.com/".$company->c_instance_id."/instance/status?token=".$company->c_token,
               CURLOPT_RETURNTRANSFER => true,
@@ -158,11 +160,11 @@ class Messages extends Model
                 "content-type: application/x-www-form-urlencoded"
               ),
             ));
-            
+
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
-            
+
             $message= json_decode($response,true);
             if(!empty($message['status']['accountStatus']['status']))
             {
@@ -179,15 +181,15 @@ class Messages extends Model
         }
         return false;
     }
-    
-    
+
+
     public function checkNumberProfile($c_id)
     {
         $company=Companies::where('id',$c_id)->first();
         if($company)
         {
             $curl = curl_init();
-    
+
             curl_setopt_array($curl, array(
               CURLOPT_URL => "https://api.ultramsg.com/".$company->c_instance_id."/instance/me?token=".$company->c_token,
               CURLOPT_RETURNTRANSFER => true,
@@ -202,17 +204,25 @@ class Messages extends Model
                 "content-type: application/x-www-form-urlencoded"
               ),
             ));
-            
+
             $response = curl_exec($curl);
             $err = curl_error($curl);
             curl_close($curl);
-            
+
             $message= json_decode($response,true);
             return $message;
         }
         return false;
     }
-    
-    
-    
+
+    public function scopeDateFilter($query,$from,$to)
+    {
+        return $query
+            ->whereDate('message_sent_at','>=',$from)
+            ->whereDate('message_sent_at','<=',$to)
+            ->count();
+    }
+
+
+
 }

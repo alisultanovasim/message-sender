@@ -9,7 +9,8 @@
 	<div class="col-md-12 col-lg-12">
 		<div class="card">
 			<div class="card-header">
-				<div class="card-title">
+				<div class="card-title text-right">
+                    <div class="excel"></div>
 				</div>
 			</div>
 			<div class="card-body">
@@ -39,7 +40,7 @@
                     			    	    @endforeach
                     					</select>
                     				</div>
-                    				
+
                     				<div class="col-md-3">
                                         <label>Göndəri s</label>
                     					<select class="form-control" name="send_status_id">
@@ -69,7 +70,7 @@
                     				</div>
                             	 </div>
                             </div>
-            						
+
             				<div class="col-md-3">
             				    <label>Tarix</label>
             					<div class="input-daterange input-group" data-plugin-datepicker>
@@ -112,13 +113,13 @@
 				             </tr>
 				            @endforeach
 				        </tbody>
-				        
+
 				    </table>
 				    </br>
-				    <div class="pagination">
-                      <ul> <!--pages or li are comes from javascript --> </ul>
-                    </div></br>
-                    <div class="excel"></div>
+                    {{$messages->onEachSide(1)->links()}}
+{{--				    <div class="pagination">--}}
+{{--                      <ul> <!--pages or li are comes from javascript --> </ul>--}}
+{{--                    </div></br>--}}
 				</div>
 			</div>
 			<!-- TABLE WRAPPER -->
@@ -130,14 +131,14 @@
 @endsection
 @section('script')
 <script>
-    
+
     $('#searchButton').click(function()
     {
         $('form').submit();
     })
     $(document).ready(function(e)
     {
-        if (e.keyCode == 13) {               
+        if (e.keyCode == 13) {
             $('form').submit();
         }
     })
