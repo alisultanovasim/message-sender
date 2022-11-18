@@ -7,7 +7,7 @@
 		<div class="col-md">
 			<div class="card overflow-hidden">
 				<div class="card-header">
-				   <h3 class="card-title">Profil</h3> 
+				   <h3 class="card-title">Profil</h3>
 				</div>
 				<div class="card-body">
 				   @if($message)
@@ -22,6 +22,14 @@
 										<div class="user-wrap">
 											<h4>{{ Auth::user()->name }}</h4>
 											<h6 class="text-muted mb-3">Status: <span class="text-success">{{ $message['name'] }}</span></h6>
+											<h6 class="text-muted mb-3">
+                                                İsmarıc limiti:
+                                                @if($messageLimit[0]['c_message_limit']===0)
+                                                <span class="text-success">Limitsiz</span>
+                                                @else
+                                                    <span class="text-success">{{$messageLimit[0]['c_message_limit']}}</span>
+                                                @endif
+                                            </h6>
 											<h6 class="text-muted mb-3">Whatsapp nömrə: <span class="text-success">+{{ str_replace("@c.us", "", $message['id']) }}</span></h6>
 											<h6 class="text-muted mb-3">Business nömrə: @if($message['is_business']) <span class="text-success">Aktiv</span> @else <span class="text-danger"></span> @endif</h6>
 										</div>

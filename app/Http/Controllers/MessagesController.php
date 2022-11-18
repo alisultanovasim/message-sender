@@ -23,15 +23,26 @@ class MessagesController extends Controller
 {
     public function addmessage()
     {
-        return view('messages.add');
+        $templates=Template::query()->where('c_id',Auth::user()->c_id)->get();
+        return view('messages.add',compact(['templates']));
     }
     public function addmessagepost(Request $request)
     {
         $company_id=Auth::user()->c_id;
         if($company_id)
         {
-            $message=new Messages();
-            $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
+            if ($request->templateId){
+                $templateText=Template::query()
+                    ->select('text')
+                    ->findOrFail($request->templateId);
+                $message=new Messages();
+                $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
+            }
+            else{
+                $message=new Messages();
+                $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
+            }
+
             if($message)
             {
                 return response()->json(['status'=>'success','message'=>'The query of message sent'],Response::HTTP_OK);
@@ -47,16 +58,27 @@ class MessagesController extends Controller
 
     public function sendCollectionMessage(Request $request)
     {
+
         $numArr=explode(',',$request->telephone);
         $company_id=Auth::user()->c_id;
         foreach ($numArr as $value){
-            if ($value<10 || $value>12){
+            if (strlen($value)<10 || strlen($value)>13){
                 return response()->json(['status'=>'error','message'=>'Nömrələri düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
             }
             if($company_id)
             {
-                $message=new Messages();
-                $message=$message->sendMessage($company_id,$value,$request['message'],2);
+                if ($request->templateId){
+                    $templateText=Template::query()
+                        ->select('text')
+                        ->findOrFail($request->templateId);
+                    $message=new Messages();
+                    $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
+                }
+                else{
+                    $message=new Messages();
+                    $message=$message->sendMessage($company_id,$value,$request['message'],2);
+                }
+
                 if($message)
                 {
                     return response()->json(['status'=>'success','message'=>'The query of message sent']);
@@ -92,7 +114,7 @@ class MessagesController extends Controller
         $template->c_id=Auth::user()->c_id;
         $template->save();
 
-        return \response()->json(['data'=>$template,'status'=>'success'],Response::HTTP_CREATED);
+        return \response()->json($template,Response::HTTP_CREATED);
     }
 
     public function deleteTemplate($id)
@@ -100,6 +122,17 @@ class MessagesController extends Controller
         $template=Template::query()->findOrFail($id);
         $template->delete();
         return redirect()->back();
+    }
+
+    public function editTemplate(Request $request,$id)
+    {
+        $tmp=Template::query()->findOrFail($id);
+        $tmp->title=$request->title;
+        $tmp->text=$request->text;
+        $tmp->c_id=Auth::user()->c_id;
+        $tmp->save();
+
+        return \response()->json(['status'=>'success'],Response::HTTP_OK);
     }
 
     public function messages(Request $request)

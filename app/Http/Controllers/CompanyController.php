@@ -42,7 +42,7 @@ class CompanyController extends Controller
                 );
             saveLog($array);
             return back();
-            
+
         }
     }
     public function checkNumber()
@@ -53,8 +53,11 @@ class CompanyController extends Controller
     }
     public function checkNumberProfile()
     {
+        $messageLimit=Companies::query()
+            ->where('id',Auth::user()->c_id)
+            ->get(['c_message_limit']);
         $message=new Messages();
         $message=$message->checkNumberProfile(Auth::user()->c_id);
-        return view('company.profile',compact('message'));
-    } 
+        return view('company.profile',compact(['message','messageLimit']));
+    }
 }

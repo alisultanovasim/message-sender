@@ -36,7 +36,7 @@
 		<link href="{{ asset('admin/assets/css/icons.css') }}" rel="stylesheet"/>
 
 		<!-- SELECT2 CSS -->
-		<link href="{{ asset('admin/assets/plugins/select2/select2.min.css') }}" rel="stylesheet"/>
+{{--		<link href="{{ asset('admin/assets/plugins/select2/select2.min.css') }}" rel="stylesheet"/>--}}
 		<link href="{{ asset('admin/assets/plugins/accordion/accordion.css') }}" rel="stylesheet" />
 
 		<link rel="stylesheet" href="{{ asset('admin/assets/plugins/summernote/summernote-bs4.css') }}">
@@ -161,11 +161,12 @@
 								</div><!-- FULL-SCREEN -->
 								<div class="dropdown d-md-flex header-settings">
 									<a href="#" class="nav-link " data-toggle="dropdown">
-										<span><img src="{{ asset('admin/assets/images/users/male/32.jpg') }}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
+										<span><img src="{{ asset('admin/assets/images/users/male/44.jpg') }}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
 									</a>
 									<div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
 										<div class="drop-heading  text-center border-bottom pb-3">
-											<h5 class="text-white mb-1">{{ Session::get('admin_name') }}</h5>
+                                            <span><img src="{{ asset('admin/assets/images/users/male/44.jpg') }}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
+                                            <h5 style="display: inline-block" class="text-white mb-1">{{ Session::get('admin_name') }}</h5>
 											<small class="text-muted"></small>
 										</div>
 										<a class="dropdown-item" href="/admin/logout"><i class="mdi  mdi-logout-variant mr-2"></i> <span>Çıxış</span></a>

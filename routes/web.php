@@ -32,6 +32,7 @@ Route::group(['prefix' => 'admin','middleware' => 'auth:web'],function () {
     Route::get('/template', 'MessagesController@allTemplates');
     Route::post('/add-template', 'MessagesController@addNewTemplate');
     Route::post('/delete-template/{id}', 'MessagesController@deleteTemplate')->name('delete-template');
+    Route::post('/edit-template/{id}', 'MessagesController@editTemplate');
     Route::post('/company_add_message_post', 'MessagesController@addmessagepost');
     Route::post('/send-collection-message', 'MessagesController@sendCollectionMessage');
     Route::get('/checkmessages', 'MessagesController@checkmessages');
