@@ -58,7 +58,8 @@
         .recipient_select {
             padding: 5px 10px;
             width: 90px;
-            background-color: #77c8ce;
+            color: white;
+            background-color: #2d2c40;
             border-radius: 10px;
             margin-top: -20px;
             margin-right: -20px;
@@ -245,24 +246,54 @@
                         })
                         $('.send-collection-message').click(function (  ){
                             let message = $( '[name=message]' ).val();
-                            $.ajax( {
-                                url: '/admin/send-collection-message',
-                                type: 'post',
-                                data: {
-                                    'telephone': numberString,
-                                    'message':message,
-                                    "_token": "{{ csrf_token() }}"
-                                },
-                                success: function ( response ) {
-                                    if ( response.status == 'success' ) {
-                                        console.log(response)
-                                    } else if ( response.status == "error" ) {
-                                        alert( response.message )
-                                    } else {
-                                        alert( 'Sistem Xətası' )
-                                    }
+                            var templateId=$('.template-select option:selected').val();
+                            var numHead=$('.num-head option:selected').val();
+                            var numBody = $( '[name=telephone]' ).val();
+                            var telephone=numHead+numBody;
+
+                            if(templateId==''){
+                                if ( !message ) {
+                                    alert( 'Mesaj boş qoyula bilməz' )
                                 }
-                            } )
+                                $.ajax( {
+                                    url: '/admin/send-collection-message',
+                                    type: 'post',
+                                    data: {
+                                        'telephone': numberString,
+                                        'message':message,
+                                        "_token": "{{ csrf_token() }}"
+                                    },
+                                    success: function ( response ) {
+                                        if ( response.status == 'success' ) {
+                                            console.log(response)
+                                        } else if ( response.status == "error" ) {
+                                            alert( response.message )
+                                        } else {
+                                            alert( 'Sistem Xətası' )
+                                        }
+                                    }
+                                } )
+                            }
+                            else{
+                                $.ajax( {
+                                    url: '/admin/company_add_message_post',
+                                    type: 'post',
+                                    data: { 'telephone': telephone,
+                                        'templateId':templateId,
+                                        "_token": "{{ csrf_token() }}"
+                                    },
+                                    success: function ( response ) {
+                                        if ( response.status == 'success' ) {
+                                            alert( 'Mesaj göndərildi' );
+                                            location.reload();
+                                        } else if ( response.status == "error" ) {
+                                            alert( response.message )
+                                        } else {
+                                            alert( 'Sistem Xətası' )
+                                        }
+                                    }
+                                } )
+                            }
                         })
                     } else {
                         $('.send-collection-message').css('display','none');

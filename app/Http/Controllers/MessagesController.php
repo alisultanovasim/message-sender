@@ -68,6 +68,7 @@ class MessagesController extends Controller
             if($company_id)
             {
                 if ($request->templateId){
+                    return 'girdi';
                     $templateText=Template::query()
                         ->select('text')
                         ->findOrFail($request->templateId);
@@ -76,6 +77,7 @@ class MessagesController extends Controller
                 }
                 else{
                     $message=new Messages();
+                    dd($request['message']);
                     $message=$message->sendMessage($company_id,$value,$request['message'],2);
                 }
 
