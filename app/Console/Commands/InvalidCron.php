@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Companies;
-use App\Messages;
+use App\Message;
 use App\MessageSendStatus;
 use App\Crons;
 
@@ -44,7 +44,7 @@ class InvalidCron extends Command
         $companies=Companies::all();
         foreach($companies as $com)
         {
-            $static=new Messages();
+            $static=new Message();
             $static=$static->getSendStatics($com->id);
             if($static)
             {
@@ -59,7 +59,7 @@ class InvalidCron extends Command
                 for($i=1;$i<=$page;$i++)
                 {
                     $curl = curl_init();
-            
+
                     curl_setopt_array($curl, array(
                       CURLOPT_URL => "https://api.ultramsg.com/".$com->c_instance_id."/messages?token=".$com->c_token."&page=".$i."&limit=100&status=invalid",
                       CURLOPT_RETURNTRANSFER => true,
@@ -74,12 +74,12 @@ class InvalidCron extends Command
                         "content-type: application/x-www-form-urlencoded"
                       ),
                     ));
-                    
+
                     $response = curl_exec($curl);
                     $err = curl_error($curl);
-                    
+
                     curl_close($curl);
-                    
+
                     Crons::insert([
                         'cron_name'=>'InvalidStatus',
                         'text'=>"log: ".$response
@@ -89,7 +89,7 @@ class InvalidCron extends Command
                     {
                         foreach($response['messages'] as $mess)
                         {
-                            $message=Messages::where('whatsapp_message_id',$mess['id'])->first();
+                            $message=Message::where('whatsapp_message_id',$mess['id'])->first();
                             if($message)
                             {
                                 $sendstatus=MessageSendStatus::where('message_id',$message->id)->first();
@@ -100,7 +100,7 @@ class InvalidCron extends Command
                                         'message_id'=>$message->id,
                                         'send_date'=>date('Y-m-d H:i:s',$mess['sent_at'])
                                     ]);
-                                    Messages::where('whatsapp_message_id',$mess['id'])->update(['send_status_id'=>3]);
+                                    Message::where('whatsapp_message_id',$mess['id'])->update(['send_status_id'=>3]);
                                 }
                             }
                         }
@@ -112,7 +112,7 @@ class InvalidCron extends Command
                     // }
                 }
             }
-            
+
         }
         $this->info('Redaktə edildi');
     }

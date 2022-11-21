@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Companies;
-use App\Messages;
+use App\Message;
 use App\Logs;
 
 use Auth;
@@ -47,7 +47,7 @@ class CompanyController extends Controller
     }
     public function checkNumber()
     {
-        $message=new Messages();
+        $message=new Message();
         $message=$message->checkWhatsappNumber(Auth::user()->c_id);
         return response()->json(['status'=>'success','message'=>$message]);
     }
@@ -56,7 +56,7 @@ class CompanyController extends Controller
         $messageLimit=Companies::query()
             ->where('id',Auth::user()->c_id)
             ->get(['c_message_limit']);
-        $message=new Messages();
+        $message=new Message();
         $message=$message->checkNumberProfile(Auth::user()->c_id);
         return view('company.profile',compact(['message','messageLimit']));
     }

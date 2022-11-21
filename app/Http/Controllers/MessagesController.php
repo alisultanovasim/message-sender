@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Template;
 use Illuminate\Http\Request;
-use App\Messages;
+use App\Message;
 use App\ChatType;
 use App\SendStatus;
 use App\MessageStatus;
@@ -35,11 +35,11 @@ class MessagesController extends Controller
                 $templateText=Template::query()
                     ->select('text')
                     ->findOrFail($request->templateId);
-                $message=new Messages();
+                $message=new Message();
                 $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
             }
             else{
-                $message=new Messages();
+                $message=new Message();
                 $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
             }
 
@@ -72,11 +72,11 @@ class MessagesController extends Controller
                     $templateText=Template::query()
                         ->select('text')
                         ->findOrFail($request->templateId);
-                    $message=new Messages();
+                    $message=new Message();
                     $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
                 }
                 else{
-                    $message=new Messages();
+                    $message=new Message();
                     dd($request['message']);
                     $message=$message->sendMessage($company_id,$value,$request['message'],2);
                 }
@@ -140,7 +140,7 @@ class MessagesController extends Controller
     public function messages(Request $request)
     {
         $company=Auth::user();
-        $messages=Messages::orderBy('id','desc');
+        $messages=Message::orderBy('id','desc');
         if($company->id!=1  && $company->id!=2)
         {
             $messages=$messages->where('c_id',$company->c_id);
@@ -242,10 +242,10 @@ class MessagesController extends Controller
     public function checkmessages(Request $request)
     {
         $company=Auth::user();
-        $count=Messages::count();
+        $count=Message::count();
         if($company->id!=1  && $company->id!=2)
         {
-            $count=Messages::where('c_id',$company->c_id)->count();
+            $count=Message::where('c_id',$company->c_id)->count();
         }
         if($count%20==0)
         {
@@ -258,7 +258,7 @@ class MessagesController extends Controller
     }
     public function statics()
     {
-        $statics=new Messages();
+        $statics=new Message();
         $statics=$statics->getSendStatics(Auth::user()->c_id);
         return view('index',compact('statics'));
     }
@@ -300,10 +300,10 @@ class MessagesController extends Controller
 
     public function dateFilter(Request $request)
     {
-        $messages=Messages::query()
+        $messages=Message::query()
             ->where([
                 'c_id'=>$request->c_id,
-                'send_status_id'=>Messages::STATUS_SEND
+                'send_status_id'=>Message::STATUS_SEND
             ])
             ->datefilter($request->from,$request->to);
         return response($messages,Response::HTTP_OK);

@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Companies;
-use App\Messages;
+use App\Message;
 use App\MessageSendStatus;
 use App\Crons;
 

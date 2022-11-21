@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Log;
 use App\Logs;
 
-class Messages extends Model
+/**
+ * @OA\Schema (
+ *     title="Message",
+ *     description="Messages model",
+ *     type="object",
+ *     schema="Message"
+ * )
+ */
+class Message extends Model
 {
     protected $table="messages";
     const STATUS_SEND=1;
@@ -76,7 +84,7 @@ class Messages extends Model
             if(!empty($response['message']) && $response['message']=='ok')
             {
 
-                $messageid=Messages::insertGetId([
+                $messageid=Message::insertGetId([
                     'c_id'=>$company->id,
                     'from_message'=>$company->c_whatsapp_number,
                     'to_message'=>$phone_number,

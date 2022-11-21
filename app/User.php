@@ -5,10 +5,31 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Laravel\Passport\HasApiTokens;
+/**
+ * @OA\Schema (
+ *     title="User",
+ *     description="Users model",
+ *     schema="User"
+ * )
+ */
 class User extends Authenticatable
 {
-    use Notifiable;
+    /**
+     * @OA\Schema (
+     *     title="User",
+     *     description="User model",
+     *     type="object",
+     *     schema="User",
+     *     properties={
+            @OA\Property(property="name",type="string"),
+            @OA\Property(property="email",type="string"),
+            @OA\Property(property="password",type="string"),
+*     },
+     *     required={"name","email","password"}
+     * )
+     */
+    use Notifiable,HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -16,7 +37,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password','c_id','last_active'
     ];
 
     /**

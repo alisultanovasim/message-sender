@@ -14,16 +14,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+
+Route::pattern('id','[0-9]+');
+//Login
+Route::group(['prefix'=>'auth','namespace'=>'Api'],function (){
+    Route::post('/register', 'AuthController@register');
+    Route::post('/login', 'AuthController@login');
 });
 
-Route::group(['prefix'=>'admin'],function (){
+
+//All APIs
+Route::group(['prefix'=>'admin','middleware'=>'auth:api','namespace'=>'Api'],function (){
     Route::post('/sendmessage', 'AcceptApiController@sendMessage');
     Route::get('/get-all-statistics', 'AcceptApiController@getStatistics');
 // Route::post('/admin/sendmessage/link', 'AcceptApiController@sendMessageLink');
-    Route::get('/check-message', 'AcceptApiController@checkMessage');
+    Route::get('/check-message/{id}', 'AcceptApiController@checkMessage');
     Route::get('/date-filter', 'AcceptApiController@dateFilter');
 });
+
+
 
 

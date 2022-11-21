@@ -1,0 +1,317 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bigonder.az Api",
+        "description": "All bigonder Apis are here",
+        "termsOfService": "http://bigonder.az/api/terms",
+        "contact": {
+            "email": "asimalisultanov000@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "3.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/",
+            "description": "Demo API Server"
+        }
+    ],
+    "paths": {
+        "/api/admin/sendmessage": {
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Add message",
+                "operationId": "sendMessage",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {},
+                            "examples": {
+                                "Send": {
+                                    "summary": "Send message",
+                                    "value": {
+                                        "phone_number": "994554251296",
+                                        "message": "Hi there"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message was sent successfully!",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/check-message/{id}": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Check message",
+                "operationId": "82f74599a04c752a7e12b3d6f6b4c793",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "You have to send id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Message checked",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "examples": {
+                                    "Success message": {
+                                        "summary": "Success message",
+                                        "value": {
+                                            "status": "success",
+                                            "message": "The status of message is success"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/get-all-statistics": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Get all statistics",
+                "operationId": "41ed36c009ae426470f3a8a2bbf34976",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "Response Example": {
+                                        "summary": "Example 1",
+                                        "value": {
+                                            "data": {
+                                                "sent": 6666,
+                                                "unsent": 15552,
+                                                "invalid": 65059,
+                                                "expired": 0,
+                                                "queue": 0
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register to continue",
+                "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {},
+                            "examples": {
+                                "Register": {
+                                    "summary": "Register",
+                                    "value": {
+                                        "name": "Penah",
+                                        "email": "penah@gmail.com",
+                                        "password": "penah122",
+                                        "password_confirmation": "penah122",
+                                        "c_id": "12"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login to continue",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {},
+                            "examples": {
+                                "Login": {
+                                    "summary": "Login",
+                                    "value": {
+                                        "email": "penah@gmail.com",
+                                        "password": "penah122"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "examples": {
+                                    "Response Example 1": {
+                                        "summary": "Response Example 1",
+                                        "value": {
+                                            "user": {
+                                                "id": "7",
+                                                "name": "Penah",
+                                                "email": "penah@gmail.com",
+                                                "email_verified_at": "null",
+                                                "last_active": "2022-11-20 16:43",
+                                                "created_at": "2022-11-18T22:03:22.000000Z",
+                                                "updated_at": "2022-11-20T12:43:22.000000Z",
+                                                "c_id": "1"
+                                            },
+                                            "access_token": "newtokenstring"
+                                        }
+                                    },
+                                    "Response Example 2": {
+                                        "summary": "Response Example 2",
+                                        "value": {
+                                            "user": {
+                                                "id": "7",
+                                                "name": "Penah",
+                                                "email": "penah@gmail.com",
+                                                "email_verified_at": "null",
+                                                "last_active": "2022-11-20 16:43",
+                                                "created_at": "2022-11-18T22:03:22.000000Z",
+                                                "updated_at": "2022-11-20T12:43:22.000000Z",
+                                                "c_id": "1"
+                                            },
+                                            "access_token": "newtokenstring"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Message": {
+                "title": "Message",
+                "description": "Messages model",
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "Users model"
+            }
+        },
+        "securitySchemes": {
+            "passport": {
+                "type": "apiKey",
+                "description": "Laravel passport apiKey security.",
+                "in": "header",
+                "name": "Authorization",
+                "scheme": "https",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://localhost:8000/oauth/authorize",
+                        "tokenUrl": "http://localhost:8000/oauth/token",
+                        "refreshUrl": "http://localhost:8000/token/refresh",
+                        "scopes": []
+                    }
+                }
+            }
+        }
+    }
+}
