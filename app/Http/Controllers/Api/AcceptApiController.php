@@ -47,27 +47,39 @@ class AcceptApiController extends Controller
      */
     public function sendMessage(Request $request)
     {
-        $request['phone_number'] = preg_replace("/[^0-9,.]/", "",$request['phone_number']);
-        $filter = Validator::make($request->all(),[
-            'phone_number' => ['required','numeric'],
+        $this->validate($request,[
+            'phone_number' => ['required','string','min:9','max:13'],
             'message' => ['required','min:3'],
         ]);
-        if($filter->fails()){
 
-            $messages = $filter->messages();
-            return response()->json(["errors" => $messages], 422);
+        $request['phone_number'] = preg_replace("/[^0-9,.]/", "",$request['phone_number']);
+
+        if (strlen($request['phone_number'])===9){
+            $request['phone_number']="994".$request['phone_number'];
         }
-                $message=new Message();
-                $message=$message->sendMessage(Auth::user()->c_id,$request['phone_number'],$request['message'],1);
-                if($message)
-                {
-                    return response()->json(['status'=>'success','message'=>'The query of message sent','message_id'=>$message],200);
-                }else
-                {
-                    return response()->json(['status'=>'error','message'=>'Message Invalid'],422);
-                }
-        Log::notice('Send message'.json_encode($request->all()));
-        return 'ok';
+
+        if ((int)$request['phone_number'][0]===0){
+            $request['phone_number'] = substr_replace($request['phone_number'], '994', 0, 1);
+        }
+        $headOfNumber=substr($request['phone_number'],'3','2');
+
+        $headersOfnumber=['50','51','55','99','55','70','77'];
+        if (in_array($headOfNumber,$headersOfnumber)){
+            $message=new Message();
+            $message=$message->sendMessage(Auth::user()->c_id,$request['phone_number'],$request['message'],1);
+            if($message)
+            {
+                return response()->json(['status'=>'success','message'=>'The query of message sent','message_id'=>$message],200);
+            }else
+            {
+                return response()->json(['status'=>'error','message'=>'Message Invalid'],422);
+            }
+            Log::notice('Send message'.json_encode($request->all()));
+            return 'ok';
+        }
+        else{
+            return response()->json(['message'=>'Phone number is invalid','status'=>'Error'],Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
