@@ -17,8 +17,11 @@ use App\Logs;
 class Message extends Model
 {
     protected $table="messages";
-    const STATUS_SEND=1;
-    const STATUS_REJECT=2;
+    const SENT=1;
+    const UNSENT=2;
+    const INVALID=3;
+    const EXPIRED=4;
+    const QUEUE=5;
 
     public function company()
     {
@@ -227,8 +230,7 @@ class Message extends Model
     {
         return $query
             ->whereDate('message_sent_at','>=',$from)
-            ->whereDate('message_sent_at','<=',$to)
-            ->count();
+            ->whereDate('message_sent_at','<=',$to);
     }
 
 

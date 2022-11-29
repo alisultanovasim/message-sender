@@ -2,7 +2,7 @@
 
     function saveLog($array)
     {
-         DB::table('log')->insert($array);
+         Db::table('log')->insert($array);
     }
     function getServerIp()
     {
@@ -41,7 +41,7 @@
     function isValidIpAddress($ip)
     {
         return htmlspecialchars(strip_tags($ip));
-        
+
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
             return false;
         }

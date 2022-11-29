@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SendMessageJob;
+use App\TestMessage;
 use Illuminate\Console\Command;
 use App\Companies;
 use App\Message;
 use App\MessageSendStatus;
 use App\Crons;
+use Illuminate\Support\Facades\Artisan;
 
 class QueueCron extends Command
 {
@@ -41,6 +44,7 @@ class QueueCron extends Command
      */
     public function handle()
     {
-
+        Artisan::call('queue:work');
+        $this->info('Job was turned on');
     }
 }

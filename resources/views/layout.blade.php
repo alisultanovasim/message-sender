@@ -20,6 +20,7 @@
 		<link href="{{ asset('admin/assets/css/dashboard-dark.css') }}" rel="stylesheet"/>
 		<link href="{{ asset('admin/assets/css/style-modes.css') }}" rel="stylesheet"/>
 
+
 		<!-- HORIZONTAL-MENU CSS -->
 		<link href="{{ asset('admin/assets/css/horizontal-menu.css') }}" rel="stylesheet">
 
@@ -131,7 +132,6 @@
 		<div id="global-loader">
 			<img src="{{ asset('admin/assets/images/svgs/loader.svg') }}" class="loader-img"  alt="Loader">
 		</div>
-
 		<div class="page">
 			<div class="page-main">
 				<!-- HEADER -->
@@ -161,11 +161,11 @@
 								</div><!-- FULL-SCREEN -->
 								<div class="dropdown d-md-flex header-settings">
 									<a href="#" class="nav-link " data-toggle="dropdown">
-										<span><img src="{{ asset('admin/assets/images/users/male/44.jpg') }}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
+										<span><img src="{{ asset('admin/assets/images/users/male/'.\App\Companies::query()->findOrFail(\auth()->user()->c_id)->with('logo:id,name')->get()[0]['logo']['name']).''}}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
 									</a>
 									<div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
 										<div class="drop-heading  text-center border-bottom pb-3">
-                                            <span><img src="{{ asset('admin/assets/images/users/male/44.jpg') }}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
+                                            <span><img src="{{ asset('admin/assets/images/users/male/'.\App\Companies::query()->findOrFail(\auth()->user()->c_id)->with('logo:id,name')->get()[0]['logo']['name']).''}}" alt="profile-user" class="avatar brround cover-image mb-0 ml-0"></span>
                                             <h5 style="display: inline-block" class="text-white mb-1">{{ Session::get('admin_name') }}</h5>
 											<small class="text-muted"></small>
 										</div>

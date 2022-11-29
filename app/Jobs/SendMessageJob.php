@@ -2,13 +2,14 @@
 
 namespace App\Jobs;
 
+use App\Message;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SendMessage implements ShouldQueue
+class SendMessageJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -17,9 +18,12 @@ class SendMessage implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    public $numbers=[];
+    public $message='aaa';
+    public function __construct($numbers,$message)
     {
-        //
+        $this->numbers=$numbers;
+        $this->message=$message;
     }
 
     /**
@@ -29,6 +33,10 @@ class SendMessage implements ShouldQueue
      */
     public function handle()
     {
-        
+     foreach ($this->numbers as $number){
+         $message=new Message();
+         $message->sendMessage(1,$number->phone_number,$this->message,1);
+     }
+
     }
 }

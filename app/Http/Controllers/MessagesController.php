@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Companies;
 use App\Template;
 use Illuminate\Http\Request;
 use App\Message;
@@ -17,6 +18,7 @@ use App\CommandMessages;
 
 use Auth;
 use Cache;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessagesController extends Controller
@@ -29,27 +31,55 @@ class MessagesController extends Controller
     public function addmessagepost(Request $request)
     {
         $company_id=Auth::user()->c_id;
+        $company=Companies::query()->findOrFail($company_id)->get(['c_message_limit']);
+        if ((int)$company[0]['c_message_limit']===1){
+            return response()->json(['status'=>'limit_error','message'=>'Limitiniz bitib!'],Response::HTTP_BAD_REQUEST);
+        }
+        if (strlen($request['telephone']) <10 || strlen($request['telephone'])>12){
+            return response()->json(['status'=>'error','message'=>'Nömrəni düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
+        }
+
+
         if($company_id)
         {
             if ($request->templateId){
+
                 $templateText=Template::query()
                     ->select('text')
                     ->findOrFail($request->templateId);
-                $message=new Message();
-                $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
+                DB::beginTransaction();
+
+                try {
+                    $message=new Message();
+                    $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
+                    Companies::query()->findOrFail($company_id)->decrement('c_message_limit',1);
+
+                    DB::commit();
+                    if ($message)
+                    return response()->json(['status'=>'success','message'=>'The query of message sent'],Response::HTTP_OK);
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return response(['status'=>'error','message'=>$e->getMessage()],$e->getCode());
+                }
+
             }
             else{
-                $message=new Message();
-                $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
+                DB::beginTransaction();
+
+                try {
+                    $message=new Message();
+                    $message=$message->sendMessage($company_id,$request['telephone'],$request['message'],2);
+                    Companies::query()->findOrFail($company_id)->decrement('c_message_limit',1);
+
+                    DB::commit();
+                    if ($message)
+                    return response()->json(['status'=>'success','message'=>'The query of message sent'],Response::HTTP_OK);
+                } catch (\Exception $e) {
+                    DB::rollback();
+                    return response(['status'=>'error','message'=>$e->getMessage()],$e->getCode());
+                }
             }
 
-            if($message)
-            {
-                return response()->json(['status'=>'success','message'=>'The query of message sent'],Response::HTTP_OK);
-            }
-            if ($request['telephone']<10 || $request['telephone']>12){
-                return response()->json(['status'=>'error','message'=>'Nömrəni düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
-            }
         }else
         {
             return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil'],Response::HTTP_BAD_REQUEST);
@@ -58,40 +88,44 @@ class MessagesController extends Controller
 
     public function sendCollectionMessage(Request $request)
     {
-
         $numArr=explode(',',$request->telephone);
+        $count=count($numArr);
         $company_id=Auth::user()->c_id;
         foreach ($numArr as $value){
             if (strlen($value)<10 || strlen($value)>13){
                 return response()->json(['status'=>'error','message'=>'Nömrələri düzgün daxil edin.'],Response::HTTP_BAD_REQUEST);
             }
-            if($company_id)
-            {
-                if ($request->templateId){
-                    return 'girdi';
-                    $templateText=Template::query()
-                        ->select('text')
-                        ->findOrFail($request->templateId);
-                    $message=new Message();
-                    $message=$message->sendMessage($company_id,$request['telephone'],$templateText->text,2);
-                }
-                else{
-                    $message=new Message();
-                    dd($request['message']);
-                    $message=$message->sendMessage($company_id,$value,$request['message'],2);
-                }
-
-                if($message)
+            else{
+                if($company_id)
                 {
-                    return response()->json(['status'=>'success','message'=>'The query of message sent']);
+                    if ($request->templateId){
+                        $templateText=Template::query()
+                            ->select('text')
+                            ->findOrFail($request->templateId);
+
+                        $message=new Message();
+                        $message=$message->sendMessage($company_id,$value,$templateText->text,2);
+                    }
+                    else{
+                        $message=new Message();
+                        $message=$message->sendMessage($company_id,$value,$request['message'],2);
+                    }
+
+                    if($message)
+                    {
+                        Companies::query()->findOrFail($company_id)->decrement('c_message_limit',$count);
+                        return response()->json(['status'=>'success','message'=>'The query of message sent']);
+
+                    }
+                    else{
+                        return response()->json(['status'=>'error','message'=>'Mesaj bölməsi boş qala bilməz.'],Response::HTTP_BAD_REQUEST);
+                    }
+                }else
+                {
+                    return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil']);
                 }
-                else{
-                    return response()->json(['status'=>'error','message'=>'Mesaj bölməsi boş qala bilməz.'],Response::HTTP_BAD_REQUEST);
-                }
-            }else
-            {
-                return response()->json(['status'=>'error','message'=>'Sizin şirkət hesabı aktiv deyil']);
             }
+
         }
     }
 
@@ -300,13 +334,43 @@ class MessagesController extends Controller
 
     public function dateFilter(Request $request)
     {
-        $messages=Message::query()
+        $sent=Message::query()
             ->where([
                 'c_id'=>$request->c_id,
-                'send_status_id'=>Message::STATUS_SEND
+                'send_status_id'=>Message::SENT
             ])
-            ->datefilter($request->from,$request->to);
-        return response($messages,Response::HTTP_OK);
+            ->datefilter($request->from,$request->to)->count();
+        $unsent=Message::query()
+            ->where([
+                'c_id'=>$request->c_id,
+                'send_status_id'=>Message::UNSENT
+            ])
+            ->datefilter($request->from,$request->to)->count();
+        $invalid=Message::query()
+            ->where([
+                'c_id'=>$request->c_id,
+                'send_status_id'=>Message::INVALID
+            ])
+            ->datefilter($request->from,$request->to)->count();
+        $expired=Message::query()
+            ->where([
+                'c_id'=>$request->c_id,
+                'send_status_id'=>Message::EXPIRED
+            ])
+            ->datefilter($request->from,$request->to)->count();
+        $queue=Message::query()
+            ->where([
+                'c_id'=>$request->c_id,
+                'send_status_id'=>Message::QUEUE
+            ])
+            ->datefilter($request->from,$request->to)->count();
+        return response(['data'=>[
+            'sent'=>$sent,
+            'unsent'=>$unsent,
+            'invalid'=>$invalid,
+            'expired'=>$expired,
+            'queue'=>$queue,
+        ]],Response::HTTP_OK);
     }
 
 

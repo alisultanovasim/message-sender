@@ -35,6 +35,9 @@ Route::group(['prefix'=>'admin','middleware'=>'auth:api','namespace'=>'Api'],fun
     Route::get('/date-filter', 'AcceptApiController@dateFilter');
 });
 
+Route::post('/import',[\App\Http\Controllers\Api\AcceptApiController::class,'import']);
+Route::post('/send',[\App\Http\Controllers\Api\AcceptApiController::class,'send']);
+
 
 
 

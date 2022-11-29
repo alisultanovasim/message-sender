@@ -26,6 +26,8 @@
                                                 İsmarıc limiti:
                                                 @if($messageLimit[0]['c_message_limit']===0)
                                                 <span class="text-success">Limitsiz</span>
+                                                @elseif($messageLimit[0]['c_message_limit']===1)
+                                                    <span class="text-danger">Limitiniz bitdi!</span>
                                                 @else
                                                     <span class="text-success">{{$messageLimit[0]['c_message_limit']}}</span>
                                                 @endif

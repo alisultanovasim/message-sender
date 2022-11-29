@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Companies;
 use App\Http\Controllers\Controller;
+use App\Imports\TestMessageImport;
+use App\Jobs\SendMessageJob;
 use App\Message;
+use App\TestMessage;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
 use Validator;
 use function response;
@@ -45,6 +49,41 @@ class AcceptApiController extends Controller
 * ),
      * ),
      */
+
+    public function import(Request $request)
+    {
+        $this->validate($request,[
+           'excelFile'=>['mimes:xlsx']
+        ]);
+
+        if ($request->has('excelFile'))
+        Excel::import(new TestMessageImport(), $request->excelFile);
+
+        return 'ok';
+    }
+
+    public function send(Request $request)
+    {
+        if (!$request->message){
+            return response()->json(['status'=>'error','message'=>'Mesaj daxil edin'],Response::HTTP_BAD_REQUEST);
+        }
+        $numbers=TestMessage::query()
+            ->whereStatus(1)
+            ->get();
+        $numArr=[];
+        foreach ($numbers as $number){
+            array_push($numArr,$number);
+        }
+        $newJob=new SendMessageJob($numbers,$request->message);
+        $this->dispatch($newJob);
+
+        TestMessage::query()
+            ->whereStatus(1)
+            ->update(['status'=>2]);
+
+        return response()->json(['status'=>'success','message'=>'Ismaric gonderildi'],Response::HTTP_OK);
+
+    }
     public function sendMessage(Request $request)
     {
         $this->validate($request,[
@@ -62,8 +101,8 @@ class AcceptApiController extends Controller
             $request['phone_number'] = substr_replace($request['phone_number'], '994', 0, 1);
         }
         $headOfNumber=substr($request['phone_number'],'3','2');
-
         $headersOfnumber=['50','51','55','99','55','70','77'];
+
         if (in_array($headOfNumber,$headersOfnumber)){
             $message=new Message();
             $message=$message->sendMessage(Auth::user()->c_id,$request['phone_number'],$request['message'],1);
@@ -80,6 +119,11 @@ class AcceptApiController extends Controller
         else{
             return response()->json(['message'=>'Phone number is invalid','status'=>'Error'],Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    public function senMessageByExcel()
+    {
+
     }
 
     /**
@@ -254,7 +298,7 @@ class AcceptApiController extends Controller
             $count=Message::query()
                 ->where([
                     'c_id'=>$company->id,
-                    'send_status_id'=>Message::STATUS_SEND
+                    'send_status_id'=>Message::SENT
                 ])
                 ->whereDate('message_sent_at','>=',$request->from)
                 ->whereDate('message_sent_at','<=',$request->to)

@@ -35,7 +35,10 @@
 						<a class="card text-center" href="/admin/company_messages?search=search?&send_status_id=2">
 							<div class="card-body">
 								<h6 class="mb-3">Göndərilmədi</h6>
-								<h2 class="mb-2 text-white display-4 font-weight-bold"><i class="fa fa-times text-danger mr-2"></i>{{ $statics['messages_statistics']['unsent'] }}</h2>
+								<h2 class="mb-2 text-white display-4 font-weight-bold unsent-messages">
+                                    <i class="fa fa-times text-danger mr-2"></i>
+                                    {{ $statics['messages_statistics']['unsent'] }}
+                                </h2>
 							</div>
 						</a>
 					</div>
@@ -43,7 +46,10 @@
 						<a class="card text-center" href="/admin/company_messages?search=search?&send_status_id=3">
 							<div class="card-body">
 								<h6 class="mb-3">Ləğv edildi</h6>
-								<h2 class="mb-2 text-white display-4 font-weight-bold"><i class="zmdi zmdi-layers-off text-warning mr-2"></i>{{ $statics['messages_statistics']['invalid'] }}</h2>
+								<h2 class="mb-2 text-white display-4 font-weight-bold invalid-messages">
+                                    <i class="zmdi zmdi-layers-off text-warning mr-2"></i>
+                                    {{ $statics['messages_statistics']['invalid'] }}
+                                </h2>
 							</div>
 						</a>
 					</div>
@@ -51,7 +57,10 @@
 						<a class="card text-center" href="/admin/company_messages?search=search?&send_status_id=4">
 							<div class="card-body">
 								<h6 class="mb-3">Müddəti bitdi</h6>
-								<h2 class="mb-2 text-white display-4 font-weight-bold"><i class="mdi mdi-update text-secondary mr-2"></i>{{ $statics['messages_statistics']['expired'] }}</h2>
+								<h2 class="mb-2 text-white display-4 font-weight-bold expired-messages">
+                                    <i class="mdi mdi-update text-secondary mr-2"></i>
+                                    {{ $statics['messages_statistics']['expired'] }}
+                                </h2>
 							</div>
 						</a>
 					</div>
@@ -59,7 +68,10 @@
 					    <a class="card text-center" href="/admin/company_messages?search=search?&send_status_id=5">
 							<div class="card-body">
 								<h6 class="mb-3">Növbədə</h6>
-								<h2 class="mb-2 text-white display-4 font-weight-bold"><i class="mdi mdi-autorenew text-primary mr-2"></i>{{ $statics['messages_statistics']['queue'] }}</h2>
+								<h2 class="mb-2 text-white display-4 font-weight-bold queue-messages">
+                                    <i class="mdi mdi-autorenew text-primary mr-2">
+                                    </i>{{ $statics['messages_statistics']['queue'] }}
+                                </h2>
 							</div>
 						</a>
 					</div>
@@ -67,12 +79,14 @@
                         <a class="card text-center">
                             <div class="card-body">
                                 <h6 class="mb-3">Cəmi</h6>
-                                <h2 class="mb-2 text-white display-4 font-weight-bold"><i class="mdi mdi-database text-primary mr-2"></i>{{
-                                 $statics['messages_statistics']['sent']+
-                                 $statics['messages_statistics']['unsent']+
-                                 $statics['messages_statistics']['invalid']+
-                                 $statics['messages_statistics']['expired']+
-                                $statics['messages_statistics']['queue'] }}</h2>
+                                <h2 class="mb-2 text-white display-4 font-weight-bold total-messages">
+                                    <i class="mdi mdi-database text-primary mr-2"></i>
+                                    {{   $statics['messages_statistics']['sent']+
+                                         $statics['messages_statistics']['unsent']+
+                                         $statics['messages_statistics']['invalid']+
+                                         $statics['messages_statistics']['expired']+
+                                         $statics['messages_statistics']['queue']
+                                    }}</h2>
                             </div>
                         </a>
                     </div>
@@ -100,7 +114,16 @@
                 "c_id":{{auth()->user()->c_id}}
             },
             success:function ( res ){
-                $('.sent-messages').html(`<i class="mdi mdi-wunderlist text-success mr-2"></i>${res}`)
+                $.each(res.data, function () {
+                    let total=parseInt(res.data['sent']+res.data['invalid']+res.data['unsent']+res.data['expired']+res.data['queue']);
+                     $('.sent-messages').html(`<i class="mdi mdi-wunderlist text-success mr-2"></i>${res.data['sent']}`)
+                     $('.unsent-messages').html(`<i class="fa fa-times text-danger mr-2"></i>${res.data['unsent']}`)
+                     $('.invalid-messages').html(`<i class="zmdi zmdi-layers-off text-warning mr-2"></i>${res.data['invalid']}`)
+                     $('.expired-messages').html(`<i class="mdi mdi-update text-secondary mr-2"></i>${res.data['expired']}`)
+                     $('.queue-messages').html(`<i class="mdi mdi-autorenew text-primary mr-2"></i>${res.data['queue']}`)
+                     $('.total-messages').html(`<i class="mdi mdi-database text-primary mr-2"></i>${total}`)
+                });
+
             }
         })
     })
