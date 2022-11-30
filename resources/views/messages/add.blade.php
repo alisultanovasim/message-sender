@@ -394,8 +394,9 @@
 
                             <div class="col-md-6 message-area" style="margin-top: 10px">
 {{--                                <button style="display:block;background-color: #c09322" class="btn btn-dark imageFileBtn" onclick="document.getElementById('imageFile').click()"><i class="fa fa-plus"></i> Şəkil</button>--}}
-                                <label for="imageFile">Şəkil əlavə et</label>
-                                <input style="display: block" id="imageFile" type="file" class="form-control col-md-12">
+                                <label for="imageLink">Şəkil əlavə et</label>
+                                <input style="display: block" id="imageLink" type="text" class="form-control" placeholder="Şəkil üçün link əlavə edin">
+{{--                                <input style="display: block" id="imageFile" type="file" class="form-control col-md-12">--}}
                             </div>
                             </br>
                             <div class="col-md-12 text-center" style="margin-top:5px">
@@ -678,16 +679,18 @@
 
                 $('.send-image').on('click',function (  ){
                     let excelFile=$('#excelFileForImg')[0].files[0];
-                    let imageFile=$('#imageFile')[0].files[0];
+                    // let imageFile=$('#imageFile')[0].files[0];
+                    let imageLink=$('#imageLink').val().trim();
                     let numHead=$('.num-head-img option:selected').val();
                     let numBody = $( '[name=phoneBodyImg]' ).val();
                     let telephone=numHead+numBody;
+                    // console.log(telephone)
+                    // console.log(imageFile['name'])
 
                     let formData = new FormData();
                     formData.append('excelFile', excelFile);
-                    formData.append('imageFile', imageFile);
 
-                    if(imageFile){
+                    if(imageLink){
                         if(excelFile){
                             $.ajax({
                                 url : '/api/import',
@@ -698,6 +701,18 @@
                                 success : function(data) {
                                     console.log(data);
                                 }
+                            });
+
+                            axios({
+                                method: 'post',
+                                url: '/api/send',
+                                data: {
+                                    message:imageLink ,
+                                }
+                            }).then((response) => {
+                                console.log(response);
+                            }, (error) => {
+                                console.log(error);
                             });
                         }
                         // else{
@@ -715,5 +730,6 @@
 
 
             </script>
+            <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 @endsection

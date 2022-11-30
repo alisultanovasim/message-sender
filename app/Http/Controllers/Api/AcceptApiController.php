@@ -64,18 +64,22 @@ class AcceptApiController extends Controller
 
     public function send(Request $request)
     {
-        if (!$request->message){
-            return response()->json(['status'=>'error','message'=>'Mesaj daxil edin'],Response::HTTP_BAD_REQUEST);
-        }
+//        if (!$request->message){
+//            return response()->json(['status'=>'error','message'=>'Mesaj daxil edin'],Response::HTTP_BAD_REQUEST);
+//        }
         $numbers=TestMessage::query()
             ->whereStatus(1)
             ->get();
         $numArr=[];
         foreach ($numbers as $number){
-            array_push($numArr,$number);
+            array_push($numArr,$number['phone_number']);
         }
-        $newJob=new SendMessageJob($numbers,$request->message);
-        $this->dispatch($newJob);
+        foreach ($numArr as $num){
+            $message=new Message();
+            $message->sendMessage(1,$num,$request->message,1);
+        }
+//        $newJob=new SendMessageJob($numbers,$request->message);
+//        $this->dispatch($newJob);
 
         TestMessage::query()
             ->whereStatus(1)
@@ -111,7 +115,7 @@ class AcceptApiController extends Controller
                 return response()->json(['status'=>'success','message'=>'The query of message sent','message_id'=>$message],200);
             }else
             {
-                return response()->json(['status'=>'error','message'=>'Message Invalid'],422);
+                return response()->json(['status'=>'error','message'=>'Message can not be empty!'],Response::HTTP_BAD_REQUEST);
             }
             Log::notice('Send message'.json_encode($request->all()));
             return 'ok';
