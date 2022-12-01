@@ -115,7 +115,7 @@ class AcceptApiController extends Controller
                 return response()->json(['status'=>'success','message'=>'The query of message sent','message_id'=>$message],200);
             }else
             {
-                return response()->json(['status'=>'error','message'=>'Message can not be empty!'],Response::HTTP_BAD_REQUEST);
+                return response()->json(['status'=>'error','message'=>'Message is invalid!'],Response::HTTP_BAD_REQUEST);
             }
             Log::notice('Send message'.json_encode($request->all()));
             return 'ok';
