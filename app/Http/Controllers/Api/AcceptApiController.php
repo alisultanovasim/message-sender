@@ -11,6 +11,7 @@ use App\TestMessage;
 use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,14 +28,30 @@ class AcceptApiController extends Controller
             'message'=>['required','string']
         ]);
 
+        $company_id=Auth::user()->c_id;
+//        dd($company_id);
+        $company=Companies::query()->where('id',$company_id)->get(['c_message_limit']);
+//        dd($company[0]['c_message_limit']);
+
         $newArr=[];
+        $count=1;
         for($i=0;$i<count($request->numbers);$i++){
+            $count=count($request->numbers);
             $request->numbers = preg_replace("/[^0-9,.]/", "",$request->numbers);
 //            dd($request->numbers);
             if ((int)$request->numbers[$i][0]===0){
                 $request->numbers[$i] = substr_replace($request->numbers[$i], '994', 0, 1);
             }
             $newArr[] = '+' . $request->numbers[$i];
+        }
+
+        if ((int)$company[0]['c_message_limit']===1){
+            return response()->json(['status'=>'limit_error','message'=>'Limitiniz bitib!'],Response::HTTP_BAD_REQUEST);
+        }
+
+        $lastLimit=$company[0]['c_message_limit']-1;
+        if ($company[0]['c_message_limit']-$count<=0){
+            return response()->json(['status'=>'limit_error','message'=>'Qalan mesaj limitiniz '.$lastLimit.'-dir. Siz limitə uyğun sayda şəxsə mesaj göndərə bilərsiz'],Response::HTTP_BAD_REQUEST);
         }
 
         $headersOfnumber=['50','51','55','99','55','70','77'];
@@ -48,15 +65,28 @@ class AcceptApiController extends Controller
             }
         }
         $numString=implode(',',$newArr);
-        $message=new Message();
-        $message->senBatchMessage(Auth::user()->c_id,$numString,$request->message,1);
+        DB::beginTransaction();
 
-        if ($message){
-            return response()->json(['status'=>'Uğurlu','message'=>'Mesaj göndərildi'],Response::HTTP_OK);
+        try {
+            $message=new Message();
+            $message->senBatchMessage(Auth::user()->c_id,$numString,$request->message,1);
+
+            Companies::query()->findOrFail($company_id)->decrement('c_message_limit',$count);
+
+            DB::commit();
+            if ($message){
+                return response()->json(['status'=>'Uğurlu','message'=>'Mesaj göndərildi'],Response::HTTP_OK);
+            }
+            else{
+                return response()->json(['status'=>'Uğursuz','message'=>'Mesaj göndərilmədi'],Response::HTTP_BAD_REQUEST);
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response($e->getMessage(),$e->getCode());
         }
-        else{
-            return response()->json(['status'=>'Uğursuz','message'=>'Mesaj göndərilmədi'],Response::HTTP_BAD_REQUEST);
-        }
+
+
+
     }
 
     public function import(Request $request)
@@ -103,6 +133,12 @@ class AcceptApiController extends Controller
             'phone_number' => ['required','string','min:9','max:13'],
             'message' => ['required','min:3'],
         ]);
+        $company_id=Auth::user()->c_id;
+        $company=Companies::query()->where('id',$company_id)->get(['c_message_limit']);
+
+        if ((int)$company[0]['c_message_limit']===1){
+            return response()->json(['status'=>'limit_error','message'=>'Limitiniz bitib!'],Response::HTTP_BAD_REQUEST);
+        }
 
         $request['phone_number'] = preg_replace("/[^0-9,.]/", "",$request['phone_number']);
 
@@ -113,30 +149,36 @@ class AcceptApiController extends Controller
         if ((int)$request['phone_number'][0]===0){
             $request['phone_number'] = substr_replace($request['phone_number'], '994', 0, 1);
         }
+
         $headOfNumber=substr($request['phone_number'],'3','2');
         $headersOfnumber=['50','51','55','99','55','70','77'];
 
         if (in_array($headOfNumber,$headersOfnumber)){
-            $message=new Message();
-            $message=$message->sendMessage(Auth::user()->c_id,$request['phone_number'],$request['message'],1);
-            if($message)
-            {
-                return response()->json(['status'=>'Uğurlu','message'=>'Mesaj uğurla göndərildi','message_id'=>$message],200);
-            }else
-            {
-                return response()->json(['status'=>'Uğursuz','message'=>'Mesaj uğursuzdur!'],Response::HTTP_BAD_REQUEST);
+            DB::beginTransaction();
+
+            try {
+                $message=new Message();
+                $message=$message->sendMessage($company_id,$request['phone_number'],$request['message'],1);
+                Companies::query()->findOrFail($company_id)->decrement('c_message_limit',1);
+
+                Log::notice('Send message'.json_encode($request->all()));
+                DB::commit();
+                if($message)
+                {
+                    return response()->json(['status'=>'Uğurlu','message'=>'Mesaj uğurla göndərildi','message_id'=>$message],200);
+                }
+                else{
+                    return response()->json(['status'=>'Uğursuz','message'=>'Mesaj uğursuzdur!'],Response::HTTP_BAD_REQUEST);
+                }
+            } catch (\Exception $e) {
+                DB::rollback();
+                return response($e->getMessage(),$e->getCode());
             }
-            Log::notice('Send message'.json_encode($request->all()));
-            return 'ok';
+
         }
         else{
             return response()->json(['message'=>'Nömrə düzgün daxil edilməyib!','status'=>'Error'],Response::HTTP_BAD_REQUEST);
         }
-    }
-
-    public function senMessageByExcel()
-    {
-
     }
 
     public function checkMessage(Request $request, $mId)
