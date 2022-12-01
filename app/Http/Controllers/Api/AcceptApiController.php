@@ -49,7 +49,7 @@ class AcceptApiController extends Controller
         }
         $numString=implode(',',$newArr);
         $message=new Message();
-        $message->senBatchMessage(1,$numString,$request->message,1);
+        $message->senBatchMessage(Auth::user()->c_id,$numString,$request->message,1);
 
         if ($message){
             return response()->json(['status'=>'Uğurlu','message'=>'Mesaj göndərildi'],Response::HTTP_OK);
