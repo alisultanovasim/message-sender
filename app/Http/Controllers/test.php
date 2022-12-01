@@ -26,6 +26,7 @@ class AcceptApiController extends Controller
             'numbers'=>['required','array'],
             'message'=>['required','string']
         ]);
+//        dd($request->numbers);
 
         $newArr=[];
         for($i=0;$i<count($request->numbers);$i++){
@@ -37,19 +38,21 @@ class AcceptApiController extends Controller
             $newArr[] = '+' . $request->numbers[$i];
         }
 
-        $headersOfnumber=['50','51','55','99','55','70','77'];
-//        dd($newArr);
-        for ($j=0;$j<count($newArr);$j++){
-            $headOfNumber=substr($newArr[$j],'4','2');
-//            dd($headOfNumber);
-            $index=$j+1;
-            if (!in_array($headOfNumber,$headersOfnumber)){
-                return response()->json(['status'=>'error','message'=>"".$index."-ci nömrə düzgün daxil edilməyib!"]);
-            }
-        }
+
+//        $headersOfnumber=['50','51','55','99','55','70','77'];
+////        dd($newArr);
+//        for ($j=0;$j<count($newArr);$j++){
+//            $headOfNumber=substr($newArr[$j],'4','2');
+//            $index=$j+1;
+//            if (!in_array($headOfNumber,$headersOfnumber)){
+//                return response()->json(['status'=>'error','message'=>"".$index."-ci nomre duzgun daxil edilmeyib"]);
+//            }
+//        }
+
+
         $numString=implode(',',$newArr);
         $message=new Message();
-        $message->senBatchMessage(1,$numString,$request->message,1);
+        $message=$message->senBatchMessage(Auth::user()->c_id,$numString,$request->message,1);
 
         if ($message){
             return response()->json(['status'=>'Uğurlu','message'=>'Mesaj göndərildi'],Response::HTTP_OK);
