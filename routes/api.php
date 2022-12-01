@@ -29,6 +29,7 @@ Route::group(['prefix'=>'auth','namespace'=>'Api'],function (){
 //All APIs
 Route::group(['prefix'=>'admin','middleware'=>'auth:api','namespace'=>'Api'],function (){
     Route::post('/sendmessage', 'AcceptApiController@sendMessage');
+    Route::post('/send-batch',[\App\Http\Controllers\Api\AcceptApiController::class,'sendBatch']);
     Route::get('/get-all-statistics', 'AcceptApiController@getStatistics');
 // Route::post('/admin/sendmessage/link', 'AcceptApiController@sendMessageLink');
     Route::get('/check-message/{id}', 'AcceptApiController@checkMessage');
@@ -37,6 +38,7 @@ Route::group(['prefix'=>'admin','middleware'=>'auth:api','namespace'=>'Api'],fun
 
 Route::post('/import',[\App\Http\Controllers\Api\AcceptApiController::class,'import']);
 Route::post('/send',[\App\Http\Controllers\Api\AcceptApiController::class,'send']);
+
 
 
 

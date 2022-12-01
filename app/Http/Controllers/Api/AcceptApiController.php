@@ -19,36 +19,30 @@ use function response;
 
 class AcceptApiController extends Controller
 {
-    /**
-* @OA\Post (
-*     path="/api/admin/sendmessage",
-*     tags={"Messages"},
-     *security={
-     *{
-     *"passport": {}},
-     *},
-*     summary="Add message",
-     *     @OA\RequestBody (
-     *     required=true,
-     *     @OA\JsonContent(
-     *     @OA\Examples(
-     *        summary="Send message",
-     *        example = "Send",
-     *       value = {
-    *           "phone_number": "994554251296",
-     *           "message": "Hi there"
-    *         },
-     *      )
-     *     ),
-     * ),
-     *     operationId="sendMessage",
-     *     @OA\Response(
-     *     response=200,
-     *     description="Message was sent successfully!",
-     *     @OA\JsonContent()
-* ),
-     * ),
-     */
+
+    public function sendBatch(Request $request)
+    {
+        $this->validate($request,[
+           'numbers'=>['required','array'],
+           'message'=>['required','string']
+        ]);
+
+        $newArr=[];
+        for($i=0;$i<count($request->numbers);$i++){
+            $newArr[] = '+' . $request->numbers[$i];
+        }
+
+        $numString=implode(',',$newArr);
+        $message=new Message();
+        $message->senBatchMessage(Auth::user()->c_id,$numString,$request->message,1);
+
+        if ($message){
+            return response()->json(['status'=>'Uğurlu','message'=>'Mesaj göndərildi'],Response::HTTP_OK);
+        }
+        else{
+            return response()->json(['status'=>'Uğursuz','message'=>'Mesaj göndərilmədi'],Response::HTTP_BAD_REQUEST);
+        }
+    }
 
     public function import(Request $request)
     {
